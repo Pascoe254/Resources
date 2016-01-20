@@ -58,6 +58,21 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 
+
+#if defined(__APPLE__)
+	//The surface contained by the window
+	SDL_Surface* screenSurface = NULL;
+
+	//Get window surface
+	screenSurface = SDL_GetWindowSurface( window );
+
+	//Fill the surface white
+	SDL_FillRect( screenSurface, NULL, SDL_MapRGB( screenSurface->format, 0, 42, 254 ) );
+
+	//Update the surface
+	SDL_UpdateWindowSurface( window );
+#endif
+
 	// The window is open: could enter program loop here (see SDL_PollEvent())
 
 	SDL_Delay(3000);  // Pause execution for 3000 milliseconds, for example
