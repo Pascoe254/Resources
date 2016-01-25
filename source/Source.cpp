@@ -2,6 +2,7 @@
 #if defined(__APPLE__)
 	
 #include "SDL2/SDL.h"
+#include "SDL2_image/SDL_image.h"
 
 #endif
 
@@ -18,12 +19,27 @@
 #include <iostream>
 using namespace std;
 
+//code for frame rate independance
+float deltaTime = 0.0;
+int thistime=0;
+int lasttime=0;
+
+
 int main(int argc, char* argv[]) {
 
 
 #if defined(__APPLE__)
 
 	cout << "running on apple..";
+	//get the current working directory
+	string s_cwd(getcwd(NULL,0));
+
+	//create a string linking to the mac's image folder
+	string s_cwd_images = s_cwd + "/Resources/images";
+
+	//test
+	cout << s_cwd_images << endl;
+
 
 #endif
 
@@ -48,8 +64,8 @@ int main(int argc, char* argv[]) {
 		"An SDL2 window",                  // window title
 		SDL_WINDOWPOS_UNDEFINED,           // initial x position
 		SDL_WINDOWPOS_UNDEFINED,           // initial y position
-		640,                               // width, in pixels
-		480,                               // height, in pixels
+		1024,                               // width, in pixels
+		768,                               // height, in pixels
 		SDL_WINDOW_OPENGL                  // flags - see below
 		);
 
@@ -60,9 +76,87 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 
+	SDL_Renderer* renderer = NULL;
+
+	//create the renderer
+	renderer = SDL_CreateRenderer(window, -1,SDL_RENDERER_ACCELERATED);
+
+	//**********Create background image********
+	string BKGDpath = s_cwd_images + "/background.png";
+
+	//create a SDL Surface to hold the background image
+	SDL_Surface *surface = IMG_Load(BKGDpath.c_str());
+
+	//create a SDL texture
+
+	SDL_Texture *bkgd1;
+
+	//place surface info into the texture background
+	bkgd1 = SDL_CreateTextureFromSurface(renderer,surface);
+
+	//create sdl texture - background2
+	SDL_Texture *bkgd2;
+
+	//place surface info into the texture background
+	bkgd2 = SDL_CreateTextureFromSurface(renderer,surface);
 
 
-	//The surface contained by the window
+
+	//create the SDL_rectangle for the texture's position and size - x,y,w,h
+	SDL_Rect bkgd1pos;
+
+	//set the x,y,w,h for the rectangle
+	bkgd1pos.x=0;
+	bkgd1pos.y=0;
+	bkgd1pos.w=1024;
+	bkgd1pos.h=768;
+
+	SDL_Rect bkgd2pos;
+	bkgd2pos.x=0;
+	bkgd2pos.y=-768;
+	bkgd2pos.w=1024;
+	bkgd2pos.h=768;
+
+
+	//set up speed for background
+	int bkgdSpeed = 100;
+
+
+	//setup temp var to hold movement-background1
+	float BG1pos_x =0,BG1pos_y =0;
+
+	//setup temp var to hold movement-background2
+	float BG2pos_x =0,BG2pos_y =-768;
+
+
+	//create cursor
+	string CURSORpath = s_cwd_images + "/reticle.png";
+
+	//create a SDL Surface to hold the background image
+	surface = IMG_Load(CURSORpath.c_str());
+
+	//create a SDL texture
+	SDL_Texture *reticle;
+
+	//place surface info into the texture background
+	reticle = SDL_CreateTextureFromSurface(renderer,surface);
+
+	//create the SDL_rectangle for the texture's position and size - x,y,w,h
+	SDL_Rect reticlepos;
+
+	//set the x,y,w,h for the rectangle
+	reticlepos.x=512;
+	reticlepos.y=384;
+	reticlepos.w=32;
+	reticlepos.h=32;
+
+
+	//free SDL surface
+	SDL_FreeSurface(surface);
+
+
+
+	/*//The surface contained by the window
 	SDL_Surface* screenSurface = NULL;
 
 	//Get window surface
@@ -72,7 +166,7 @@ int main(int argc, char* argv[]) {
 	SDL_FillRect( screenSurface, NULL, SDL_MapRGB( screenSurface->format, 0, 42, 254 ) );
 
 	//Update the surface
-	SDL_UpdateWindowSurface( window );
+	SDL_UpdateWindowSurface( window );*/
 
 	//set up game controller variable *****
 	SDL_GameController* gGameController = NULL;
@@ -93,7 +187,7 @@ int main(int argc, char* argv[]) {
 	GameState gameState = MENU;
 
 	//bolean values to control movement through states
-	bool menu,instructions,players1,players2,win,lose,quit;
+	bool menu,instructions,players1,players2,win,lose,quit=false;
 
 
 	// The window is open: could enter program loop here (see SDL_PollEvent())
@@ -112,6 +206,10 @@ int main(int argc, char* argv[]) {
 				cout << endl;
 			while (menu)
 			{
+				//set up framerate for the section, or CASE
+				thistime = SDL_GetTicks();
+				deltaTime = (float)(thistime-lasttime)/1000;
+				lasttime=thistime;
 				//check for input events
 				if(SDL_PollEvent(&event)){
 					//check to see if the SDL window is closed - player clicks x in window
@@ -154,6 +252,48 @@ int main(int argc, char* argv[]) {
 						break;
 					}
 				}
+
+				//update background1
+				BG1pos_y += (bkgdSpeed *1) * deltaTime;
+
+				//set new bkgsd1 position
+				bkgd1pos.y = (int)(BG1pos_y + 0.5f);
+
+				//reset when off the bottom of the screen
+				if(bkgd1pos.y >= 768)
+				{
+					bkgd1pos.y=-768;
+					BG1pos_y = bkgd1pos.y;
+				}
+
+				//update background1
+				BG2pos_y += (bkgdSpeed *1) * deltaTime;
+
+				//set new bkgsd1 position
+				bkgd2pos.y = (int)(BG2pos_y + 0.5f);
+
+				//reset when off the bottom of the screen
+				if(bkgd2pos.y >= 768)
+				{
+					bkgd2pos.y=-768;
+					BG2pos_y = bkgd2pos.y;
+				}
+				//start drawing
+				//clear SDL renderer
+				SDL_RenderClear(renderer);
+
+				//drae the background
+				SDL_RenderCopy(renderer,bkgd1,NULL,&bkgd1pos);
+
+				SDL_RenderCopy(renderer,bkgd2,NULL,&bkgd2pos);
+
+				SDL_RenderCopy(renderer,reticle,NULL,&reticlepos);
+
+				//SDL Render present
+				SDL_RenderPresent(renderer);
+
+
+
 			}
 			break;//end main menu case
 
