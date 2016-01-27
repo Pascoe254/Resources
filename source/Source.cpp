@@ -19,10 +19,57 @@
 #include <iostream>
 using namespace std;
 
+//create the SDL_rectangle for the texture's position and size - x,y,w,h
+	SDL_Rect bkgd1pos;
+	SDL_Rect bkgd2pos;
+
+
 //code for frame rate independance
 float deltaTime = 0.0;
 int thistime=0;
 int lasttime=0;
+//set up speed for background
+int bkgdSpeed = 100;
+
+
+//setup temp var to hold movement-background1
+float BG1pos_x =0,BG1pos_y =0;
+
+//setup temp var to hold movement-background2
+float BG2pos_x =0,BG2pos_y =-768;
+
+
+//move the background
+void UpdateBackground(){
+	//update background1
+					BG1pos_y += (bkgdSpeed *1) * deltaTime;
+
+					//set new bkgsd1 position
+					bkgd1pos.y = (int)(BG1pos_y + 0.5f);
+
+					//reset when off the bottom of the screen
+					if(bkgd1pos.y >= 768)
+					{
+						bkgd1pos.y=-768;
+						BG1pos_y = bkgd1pos.y;
+					}
+
+					//update background1
+					BG2pos_y += (bkgdSpeed *1) * deltaTime;
+
+					//set new bkgsd1 position
+					bkgd2pos.y = (int)(BG2pos_y + 0.5f);
+
+					//reset when off the bottom of the screen
+					if(bkgd2pos.y >= 768)
+					{
+						bkgd2pos.y=-768;
+						BG2pos_y = bkgd2pos.y;
+					}
+
+
+
+}
 
 
 int main(int argc, char* argv[]) {
@@ -101,33 +148,186 @@ int main(int argc, char* argv[]) {
 	bkgd2 = SDL_CreateTextureFromSurface(renderer,surface);
 
 
-
-	//create the SDL_rectangle for the texture's position and size - x,y,w,h
-	SDL_Rect bkgd1pos;
-
 	//set the x,y,w,h for the rectangle
 	bkgd1pos.x=0;
 	bkgd1pos.y=0;
 	bkgd1pos.w=1024;
 	bkgd1pos.h=768;
 
-	SDL_Rect bkgd2pos;
+
 	bkgd2pos.x=0;
 	bkgd2pos.y=-768;
 	bkgd2pos.w=1024;
 	bkgd2pos.h=768;
 
+	//create title//////////////////////////////////////////////////////////
+	string titlepath = s_cwd_images + "/title.png";
 
-	//set up speed for background
-	int bkgdSpeed = 100;
+	//create a SDL Surface to hold the background image
+	surface = IMG_Load(titlepath.c_str());
+
+	//create a SDL texture
+	SDL_Texture *title;
 
 
-	//setup temp var to hold movement-background1
-	float BG1pos_x =0,BG1pos_y =0;
+	title = SDL_CreateTextureFromSurface(renderer,surface);
 
-	//setup temp var to hold movement-background2
-	float BG2pos_x =0,BG2pos_y =-768;
+	SDL_Rect titlepos;
 
+
+	titlepos.x=167;
+	titlepos.y=69;
+	titlepos.w=697;
+	titlepos.h=33;
+
+	//title end
+
+	//create player1//////////////////////////////////////////////////////////////////////
+	string player1npath = s_cwd_images + "/1playernorm.png";
+
+	//create a SDL Surface to hold the background image
+	surface = IMG_Load(player1npath.c_str());
+
+	//create a SDL texture
+	SDL_Texture *player1n;
+
+
+	player1n = SDL_CreateTextureFromSurface(renderer,surface);
+
+
+
+	//create player1
+	string player1opath = s_cwd_images + "/1playerover.png";
+
+	//create a SDL Surface to hold the background image
+	surface = IMG_Load(player1opath.c_str());
+
+	//create a SDL texture
+	SDL_Texture *player1o;
+
+
+	player1o = SDL_CreateTextureFromSurface(renderer,surface);
+
+	SDL_Rect player1npos;
+
+
+	player1npos.x=211;
+	player1npos.y=471;
+	player1npos.w=608;
+	player1npos.h=33;
+
+	//player 1 end
+
+	//create player2//////////////////////////////////////////////////////
+	string player2npath = s_cwd_images + "/2playernorm.png";
+
+	//create a SDL Surface to hold the background image
+	surface = IMG_Load(player2npath.c_str());
+
+	//create a SDL texture
+	SDL_Texture *player2n;
+
+
+	player2n = SDL_CreateTextureFromSurface(renderer,surface);
+
+
+
+	//create player2
+	string player2opath = s_cwd_images + "/2playerover.png";
+
+	//create a SDL Surface to hold the background image
+	surface = IMG_Load(player2opath.c_str());
+
+	//create a SDL texture
+	SDL_Texture *player2o;
+
+
+	player2o = SDL_CreateTextureFromSurface(renderer,surface);
+
+	SDL_Rect player2npos;
+
+
+	player2npos.x=205;
+	player2npos.y=570;
+	player2npos.w=621;
+	player2npos.h=33;
+
+	//player 2 end
+
+	//create instructions//////////////////////////////////////////////////////
+	string instructnpath = s_cwd_images + "/instructnorm.png";
+
+	//create a SDL Surface to hold the background image
+	surface = IMG_Load(instructnpath.c_str());
+
+	//create a SDL texture
+	SDL_Texture *instructn;
+
+
+	instructn = SDL_CreateTextureFromSurface(renderer,surface);
+
+
+
+	//create player2
+	string instructopath = s_cwd_images + "/instructover.png";
+
+	//create a SDL Surface to hold the background image
+	surface = IMG_Load(instructopath.c_str());
+
+	//create a SDL texture
+	SDL_Texture *instructo;
+
+
+	instructo = SDL_CreateTextureFromSurface(renderer,surface);
+
+	SDL_Rect instructnpos;
+
+
+	instructnpos.x=250;
+	instructnpos.y=373;
+	instructnpos.w=530;
+	instructnpos.h=27;
+
+	//instructions 2 end
+
+	//create instructions//////////////////////////////////////////////////////
+		string quitnpath = s_cwd_images + "/quit.png";
+
+		//create a SDL Surface to hold the background image
+		surface = IMG_Load(quitnpath.c_str());
+
+		//create a SDL texture
+		SDL_Texture *quitn;
+
+
+		quitn = SDL_CreateTextureFromSurface(renderer,surface);
+
+
+
+		//create player2
+		string quitopath = s_cwd_images + "/quitover.png";
+
+		//create a SDL Surface to hold the background image
+		surface = IMG_Load(quitopath.c_str());
+
+		//create a SDL texture
+		SDL_Texture *quito;
+
+
+		quito = SDL_CreateTextureFromSurface(renderer,surface);
+
+		SDL_Rect quitnpos;
+
+
+		quitnpos.x=397;
+		quitnpos.y=664;
+		quitnpos.w=188;
+		quitnpos.h=33;
+
+		//instructions 2 end
+
+
+	//main menu end
 
 	//create cursor
 	string CURSORpath = s_cwd_images + "/reticle.png";
@@ -145,8 +345,8 @@ int main(int argc, char* argv[]) {
 	SDL_Rect reticlepos;
 
 	//set the x,y,w,h for the rectangle
-	reticlepos.x=512;
-	reticlepos.y=384;
+	reticlepos.x=0;
+	reticlepos.y=0;
 	reticlepos.w=32;
 	reticlepos.h=32;
 
@@ -253,31 +453,9 @@ int main(int argc, char* argv[]) {
 					}
 				}
 
-				//update background1
-				BG1pos_y += (bkgdSpeed *1) * deltaTime;
+				//update section
+				UpdateBackground();
 
-				//set new bkgsd1 position
-				bkgd1pos.y = (int)(BG1pos_y + 0.5f);
-
-				//reset when off the bottom of the screen
-				if(bkgd1pos.y >= 768)
-				{
-					bkgd1pos.y=-768;
-					BG1pos_y = bkgd1pos.y;
-				}
-
-				//update background1
-				BG2pos_y += (bkgdSpeed *1) * deltaTime;
-
-				//set new bkgsd1 position
-				bkgd2pos.y = (int)(BG2pos_y + 0.5f);
-
-				//reset when off the bottom of the screen
-				if(bkgd2pos.y >= 768)
-				{
-					bkgd2pos.y=-768;
-					BG2pos_y = bkgd2pos.y;
-				}
 				//start drawing
 				//clear SDL renderer
 				SDL_RenderClear(renderer);
@@ -286,6 +464,24 @@ int main(int argc, char* argv[]) {
 				SDL_RenderCopy(renderer,bkgd1,NULL,&bkgd1pos);
 
 				SDL_RenderCopy(renderer,bkgd2,NULL,&bkgd2pos);
+
+				SDL_RenderCopy(renderer,title,NULL,&titlepos);
+
+				SDL_RenderCopy(renderer,player1n,NULL,&player1npos);
+
+				SDL_RenderCopy(renderer,player1o,NULL,&player1npos);
+
+				SDL_RenderCopy(renderer,player2n,NULL,&player2npos);
+
+				SDL_RenderCopy(renderer,player2o,NULL,&player2npos);
+
+				SDL_RenderCopy(renderer,instructn,NULL,&instructnpos);
+
+				SDL_RenderCopy(renderer,instructo,NULL,&instructnpos);
+
+				SDL_RenderCopy(renderer,quitn,NULL,&quitnpos);
+
+				SDL_RenderCopy(renderer,quito,NULL,&quitnpos);
 
 				SDL_RenderCopy(renderer,reticle,NULL,&reticlepos);
 
