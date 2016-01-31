@@ -16,6 +16,13 @@
 #if defined(_WIN32) || (_WIN64)
 
 #include "SDL.h"
+#include "SDL_image.h"
+#endif
+
+#if defined(_WIN32) || (_WIN64)
+
+#include<direct.h>
+#define getcwd _getcwd
 #endif
 
 #include <stdio.h>
@@ -98,6 +105,11 @@ int main(int argc, char* argv[]) {
 #if defined(_WIN32) || (_WIN64)
 
 	cout << "running on windows..";
+	//get the current working directory
+	string s_cwd(getcwd(NULL, 0));
+
+	//create a string linking to the mac's image folder
+	string s_cwd_images = s_cwd + "\\Resources\\images\\";
 #endif
 
 	SDL_Window *window;                    // Declare a pointer
@@ -480,25 +492,19 @@ int main(int argc, char* argv[]) {
 	GameState gameState = MENU;
 
 	//bolean values to control movement through states
-<<<<<<< HEAD
+
 	bool menu=false, instructions=false, players1=false, players2=false, win=false, lose=false, quit = false;
 
 
 	// The window is open: could enter program loop here (see SDL_PollEvent())
 
 
-	while(!quit)
-	{
-		switch(gameState)
-		{
-=======
-	bool menu, instructions, players1, players2, win, lose, quit = false;
 
 	// The window is open: could enter program loop here (see SDL_PollEvent())
 
 	while (!quit) {
 		switch (gameState) {
->>>>>>> origin/master
+
 		case MENU:
 			menu = true;
 			cout << "the gamestate is menu" << endl;
