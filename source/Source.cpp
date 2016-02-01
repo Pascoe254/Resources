@@ -27,6 +27,7 @@
 
 #include <stdio.h>
 #include <iostream>
+#include "player.h"
 using namespace std;
 
 //create the SDL_rectangle for the texture's position and size - x,y,w,h
@@ -72,6 +73,89 @@ void UpdateBackground() {
 		BG2pos_y = bkgd2pos.y;
 	}
 
+}
+
+const int JOYSTICK_DEAD_ZONE = 8000;
+
+float xDir,yDir;
+
+float pos_x,pos_y;
+
+SDL_Rect cursorpos,activepos;
+
+int CursorSpeed = 400;
+
+//set the x,y,w,h for the rectangle
+//cursorpos.x = 0;
+//cursorpos.y = 0;
+//cursorpos.w = 32;
+//cursorpos.h = 32;
+//
+//activepos.x = 0;
+//activepos.y = 0;
+//activepos.w = 32;
+//activepos.h = 32;
+
+void moveCursor(const SDL_ControllerAxisEvent event){
+	if (event.which == 0){
+		if(event.axis == 0)
+		{
+			if(event.value < -JOYSTICK_DEAD_ZONE)
+			{
+				xDir=-1.0f;
+			}else if(event.value > JOYSTICK_DEAD_ZONE){
+				xDir = 1.0f;
+			}else{
+				xDir = 0.0f;
+			}
+		}
+
+		if(event.axis == 1){
+			if(event.value < -JOYSTICK_DEAD_ZONE)
+			{
+				yDir=-1.0f;
+			}else if(event.value > JOYSTICK_DEAD_ZONE){
+				yDir = 1.0f;
+			}else{
+				yDir = 0.0f;
+			}
+		}
+	}
+
+}
+
+void UpdateCursor(){
+	//update cursor
+	pos_x+=(CursorSpeed * xDir)*deltaTime;
+	pos_y+=(CursorSpeed * yDir)*deltaTime;
+
+	//assign to SDL_RECT ints x and y
+	cursorpos.x=(int)(pos_x+0.5f);
+	cursorpos.x=(int)(pos_y+0.5f);
+
+	activepos.x = cursorpos.x;
+	activepos.y = cursorpos.y;
+
+	if(cursorpos.x<0)
+		cursorpos.x=0;
+	pos_x=cursorpos.x;
+
+	if(cursorpos.x>1024-cursorpos.w)
+	{
+		cursorpos.x=1024-cursorpos.w;
+		pos_x=cursorpos.x;
+	}
+
+
+	if(cursorpos.y<0)
+		cursorpos.y=0;
+	pos_y=cursorpos.y;
+
+	if(cursorpos.y>769-cursorpos.h)
+	{
+		cursorpos.y=1024-cursorpos.h;
+		pos_x=cursorpos.y;
+	}
 }
 
 int main(int argc, char* argv[]) {
@@ -136,6 +220,10 @@ int main(int argc, char* argv[]) {
 
 	//create the renderer
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+
+
+	/////////////////////////////////create players
+	Player player1 = Player(renderer,0,s_cwd_images.c_str(),250.0,500.0);
 
 	//**********Create background image********
 	string BKGDpath = s_cwd_images + "/background.png";
@@ -442,34 +530,29 @@ int main(int argc, char* argv[]) {
 	surface = IMG_Load(CURSORpath.c_str());
 
 	//create a SDL texture
-	SDL_Texture *reticle;
+	SDL_Texture *cursor;
 
 	//place surface info into the texture background
-	reticle = SDL_CreateTextureFromSurface(renderer, surface);
+	cursor = SDL_CreateTextureFromSurface(renderer, surface);
 
 	//create the SDL_rectangle for the texture's position and size - x,y,w,h
-	SDL_Rect reticlepos;
+	//SDL_Rect reticlepos,activepos;
 
 	//set the x,y,w,h for the rectangle
-	reticlepos.x = 0;
-	reticlepos.y = 0;
-	reticlepos.w = 32;
-	reticlepos.h = 32;
+	//reticlepos.x = 0;
+	//reticlepos.y = 0;
+	//cursorpos.w = 32;
+	//cursorpos.h = 32;
+
+	//activepos.x = 0;
+	//activepos.y = 0;
+	//activepos.w = 32;
+	//activepos.h = 32;
 
 	//free SDL surface
 	SDL_FreeSurface(surface);
 
-	/*//The surface contained by the window
-	 SDL_Surface* screenSurface = NULL;
 
-	 //Get window surface
-	 screenSurface = SDL_GetWindowSurface( window );
-
-	 //Fill the surface white
-	 SDL_FillRect( screenSurface, NULL, SDL_MapRGB( screenSurface->format, 0, 42, 254 ) );
-
-	 //Update the surface
-	 SDL_UpdateWindowSurface( window );*/
 
 	//set up game controller variable *****
 	SDL_GameController* gGameController = NULL;
@@ -494,6 +577,7 @@ int main(int argc, char* argv[]) {
 	//bolean values to control movement through states
 
 	bool menu=false, instructions=false, players1=false, players2=false, win=false, lose=false, quit = false;
+	bool players1Over = false, players2Over=false,instructionsOver = false,quitOver = false, menuOver = false, playOver=false;
 
 
 	// The window is open: could enter program loop here (see SDL_PollEvent())
@@ -531,37 +615,49 @@ int main(int argc, char* argv[]) {
 						if (event.cdevice.which == 0) {
 							if (event.cbutton.button
 									== SDL_CONTROLLER_BUTTON_A) {
-								menu = false;
-								gameState = INSTRUCTIONS;
+								if(players1Over){
+									menu=false;
+									gameState = PLAYERS1;
+									players1Over=false;
+								}
 
-							}
-							if (event.cbutton.button
-									== SDL_CONTROLLER_BUTTON_B) {
-								menu = false;
-								gameState = PLAYERS1;
+								if(players2Over){
+									menu=false;
+									gameState = PLAYERS2;
+									players2Over=false;
+								}
 
-							}
-							if (event.cbutton.button
-									== SDL_CONTROLLER_BUTTON_X) {
-								menu = false;
-								gameState = PLAYERS2;
+								if(instructionsOver){
+									menu=false;
+									gameState = INSTRUCTIONS;
+									instructionsOver=false;
+								}
 
-							}
-							if (event.cbutton.button
-									== SDL_CONTROLLER_BUTTON_Y) {
-								menu = false;
-								quit = true;
+								if(quitOver){
+									menu=false;
+									quit=true;
+									players2Over=false;
+								}
 
-							}
-
-						}
+								break;
+					case SDL_CONTROLLERAXISMOTION:
+						moveCursor(event.caxis);
 						break;
+
+							}
+							break;
+						}
 					}
 				}
 
 				//update section
 				UpdateBackground();
+				UpdateCursor();
 
+				players1Over = SDL_HasIntersection(&activepos,&player1npos);
+				players2Over = SDL_HasIntersection(&activepos,&player2npos);
+				instructionsOver = SDL_HasIntersection(&activepos,&instructnpos);
+				quitOver = SDL_HasIntersection(&activepos,&quitnpos);
 				//start drawing
 				//clear SDL renderer
 				SDL_RenderClear(renderer);
@@ -573,23 +669,35 @@ int main(int argc, char* argv[]) {
 
 				SDL_RenderCopy(renderer, title, NULL, &titlepos);
 
-				SDL_RenderCopy(renderer, player1n, NULL, &player1npos);
+				if(players1Over)
+				{
+					SDL_RenderCopy(renderer, player1o, NULL, &player1npos);
+				}else{
+					SDL_RenderCopy(renderer, player1n, NULL, &player1npos);
+				}
 
-				SDL_RenderCopy(renderer, player1o, NULL, &player1npos);
 
-				SDL_RenderCopy(renderer, player2n, NULL, &player2npos);
+				if(players2Over)
+				{
+					SDL_RenderCopy(renderer, player2o, NULL, &player2npos);
+				}else{
+					SDL_RenderCopy(renderer, player2n, NULL, &player2npos);
+				}
 
-				SDL_RenderCopy(renderer, player2o, NULL, &player2npos);
+				if(instructionsOver)
+				{
+					SDL_RenderCopy(renderer, instructo, NULL, &instructnpos);
+				}else{
+					SDL_RenderCopy(renderer, instructn, NULL, &instructnpos);
+				}
 
-				SDL_RenderCopy(renderer, instructn, NULL, &instructnpos);
-
-				SDL_RenderCopy(renderer, instructo, NULL, &instructnpos);
-
-				SDL_RenderCopy(renderer, quitn, NULL, &quitnpos);
-
-				SDL_RenderCopy(renderer, quito, NULL, &quitnpos);
-
-				SDL_RenderCopy(renderer, reticle, NULL, &reticlepos);
+				if(quitOver)
+				{
+					SDL_RenderCopy(renderer, quito, NULL, &quitnpos);
+				}else{
+					SDL_RenderCopy(renderer, quitn, NULL, &quitnpos);
+				}
+				SDL_RenderCopy(renderer, cursor, NULL, &cursorpos);
 
 				//SDL Render present
 				SDL_RenderPresent(renderer);
@@ -645,7 +753,7 @@ int main(int argc, char* argv[]) {
 
 				SDL_RenderCopy(renderer, instructtext, NULL, &instructtextpos);
 
-				SDL_RenderCopy(renderer, reticle, NULL, &reticlepos);
+				SDL_RenderCopy(renderer, cursor, NULL, &cursorpos);
 
 				SDL_RenderCopy(renderer, menunorm, NULL, &menupos);
 
@@ -689,13 +797,19 @@ int main(int argc, char* argv[]) {
 								gameState = LOSE;
 							}
 
+							player1.OnControllerButton(event.cbutton)
 						}
+						break;
+					case SDL_CONTROLLERAXISMOTION:
+						player1.OnControllerAxis(event.caxis);
 						break;
 					}
 				}
 
 				//update section
 				UpdateBackground();
+
+				player1.Update(deltaTime);
 
 				//start drawing
 				//clear SDL renderer
@@ -707,6 +821,8 @@ int main(int argc, char* argv[]) {
 				SDL_RenderCopy(renderer, bkgd2, NULL, &bkgd2pos);
 
 				SDL_RenderCopy(renderer, player1n, NULL, &player1npos);
+
+				player1.Draw(renderer);
 
 				//SDL Render present
 				SDL_RenderPresent(renderer);
