@@ -85,16 +85,8 @@ SDL_Rect cursorpos,activepos;
 
 int CursorSpeed = 400;
 
-//set the x,y,w,h for the rectangle
-//cursorpos.x = 0;
-//cursorpos.y = 0;
-//cursorpos.w = 32;
-//cursorpos.h = 32;
-//
-//activepos.x = 0;
-//activepos.y = 0;
-//activepos.w = 32;
-//activepos.h = 32;
+
+
 
 void moveCursor(const SDL_ControllerAxisEvent event){
 	if (event.which == 0){
@@ -124,14 +116,14 @@ void moveCursor(const SDL_ControllerAxisEvent event){
 
 }
 
-void UpdateCursor(){
+void UpdateCursor(float deltaTime){
 	//update cursor
 	pos_x+=(CursorSpeed * xDir)*deltaTime;
 	pos_y+=(CursorSpeed * yDir)*deltaTime;
 
 	//assign to SDL_RECT ints x and y
 	cursorpos.x=(int)(pos_x+0.5f);
-	cursorpos.x=(int)(pos_y+0.5f);
+	cursorpos.y=(int)(pos_y+0.5f);
 
 	activepos.x = cursorpos.x;
 	activepos.y = cursorpos.y;
@@ -151,10 +143,10 @@ void UpdateCursor(){
 		cursorpos.y=0;
 	pos_y=cursorpos.y;
 
-	if(cursorpos.y>769-cursorpos.h)
+	if(cursorpos.y>768-cursorpos.h)
 	{
-		cursorpos.y=1024-cursorpos.h;
-		pos_x=cursorpos.y;
+		cursorpos.y=768-cursorpos.h;
+		pos_y=cursorpos.y;
 	}
 }
 
@@ -224,6 +216,8 @@ int main(int argc, char* argv[]) {
 
 	/////////////////////////////////create players
 	Player player1 = Player(renderer,0,s_cwd_images.c_str(),250.0,500.0);
+
+	Player player2 = Player(renderer,1,s_cwd_images.c_str(),750.0,500.0);
 
 	//**********Create background image********
 	string BKGDpath = s_cwd_images + "/background.png";
@@ -338,7 +332,7 @@ int main(int argc, char* argv[]) {
 	//player 2 end
 
 	//create instructions//////////////////////////////////////////////////////
-	string instructnpath = s_cwd_images + "/instructnorm.png";
+	string instructnpath = s_cwd_images + "/instructnormal.png";
 
 	//create a SDL Surface to hold the background image
 	surface = IMG_Load(instructnpath.c_str());
@@ -535,19 +529,16 @@ int main(int argc, char* argv[]) {
 	//place surface info into the texture background
 	cursor = SDL_CreateTextureFromSurface(renderer, surface);
 
-	//create the SDL_rectangle for the texture's position and size - x,y,w,h
-	//SDL_Rect reticlepos,activepos;
+	cursorpos.x = 0;
+	cursorpos.y = 0;
+	cursorpos.w = 32;
+	cursorpos.h = 32;
+		//
+	activepos.x = 10;
+	activepos.y = 10;
+	activepos.w = 10;
+	activepos.h = 10;
 
-	//set the x,y,w,h for the rectangle
-	//reticlepos.x = 0;
-	//reticlepos.y = 0;
-	//cursorpos.w = 32;
-	//cursorpos.h = 32;
-
-	//activepos.x = 0;
-	//activepos.y = 0;
-	//activepos.w = 32;
-	//activepos.h = 32;
 
 	//free SDL surface
 	SDL_FreeSurface(surface);
@@ -591,12 +582,7 @@ int main(int argc, char* argv[]) {
 
 		case MENU:
 			menu = true;
-			cout << "the gamestate is menu" << endl;
-			cout << "Press the A button for Instructions" << endl;
-			cout << "Press the B button for 1 player game" << endl;
-			cout << "Press the X button for 2 player game" << endl;
-			cout << "Press the Y button to Quit game" << endl;
-			cout << endl;
+
 			while (menu) {
 				//set up framerate for the section, or CASE
 				thistime = SDL_GetTicks();
@@ -652,7 +638,7 @@ int main(int argc, char* argv[]) {
 
 				//update section
 				UpdateBackground();
-				UpdateCursor();
+				UpdateCursor(deltaTime);
 
 				players1Over = SDL_HasIntersection(&activepos,&player1npos);
 				players2Over = SDL_HasIntersection(&activepos,&player2npos);
@@ -707,9 +693,7 @@ int main(int argc, char* argv[]) {
 
 		case INSTRUCTIONS:
 			instructions = true;
-			cout << "the gamestate is Instructions" << endl;
-			cout << "Press the A button to go to Menu" << endl;
-			cout << endl;
+
 			while (instructions) {
 				thistime = SDL_GetTicks();
 				deltaTime = (float) (thistime - lasttime) / 1000;
@@ -766,10 +750,6 @@ int main(int argc, char* argv[]) {
 
 		case PLAYERS1:
 			players1 = true;
-			cout << "the gamestate is 1 Player Game" << endl;
-			cout << "Press the A button for Win Screen" << endl;
-			cout << "Press the B button for Lose Screen" << endl;
-			cout << endl;
 			while (players1) {
 				thistime = SDL_GetTicks();
 				deltaTime = (float) (thistime - lasttime) / 1000;
@@ -786,18 +766,18 @@ int main(int argc, char* argv[]) {
 					case SDL_CONTROLLERBUTTONDOWN:
 						if (event.cdevice.which == 0) {
 							if (event.cbutton.button
-									== SDL_CONTROLLER_BUTTON_A) {
+									== SDL_CONTROLLER_BUTTON_X) {
 								players1 = false;
 								gameState = WIN;
 
 							}
 							if (event.cbutton.button
-									== SDL_CONTROLLER_BUTTON_B) {
+									== SDL_CONTROLLER_BUTTON_Y) {
 								players1 = false;
 								gameState = LOSE;
 							}
 
-							player1.OnControllerButton(event.cbutton)
+							player1.OnControllerButton(event.cbutton);
 						}
 						break;
 					case SDL_CONTROLLERAXISMOTION:
@@ -820,7 +800,7 @@ int main(int argc, char* argv[]) {
 
 				SDL_RenderCopy(renderer, bkgd2, NULL, &bkgd2pos);
 
-				SDL_RenderCopy(renderer, player1n, NULL, &player1npos);
+				//SDL_RenderCopy(renderer, player1n, NULL, &player1npos);
 
 				player1.Draw(renderer);
 
@@ -830,10 +810,7 @@ int main(int argc, char* argv[]) {
 			break;					//end player 1 case
 		case PLAYERS2:
 			players2 = true;
-			cout << "the gamestate is 2 Player Game" << endl;
-			cout << "Press the A button for Win Screen" << endl;
-			cout << "Press the B button for Lose Screen" << endl;
-			cout << endl;
+
 
 			while (players2) {
 				thistime = SDL_GetTicks();
@@ -851,24 +828,33 @@ int main(int argc, char* argv[]) {
 					case SDL_CONTROLLERBUTTONDOWN:
 						if (event.cdevice.which == 0) {
 							if (event.cbutton.button
-									== SDL_CONTROLLER_BUTTON_A) {
+									== SDL_CONTROLLER_BUTTON_X) {
 								players2 = false;
 								gameState = WIN;
 
 							}
 							if (event.cbutton.button
-									== SDL_CONTROLLER_BUTTON_B) {
+									== SDL_CONTROLLER_BUTTON_Y) {
 								players2 = false;
 								gameState = LOSE;
 							}
 
 						}
+
+						player1.OnControllerButton(event.cbutton);
+						player2.OnControllerButton(event.cbutton);
 						break;
+
+					case SDL_CONTROLLERAXISMOTION:
+					player1.OnControllerAxis(event.caxis);
+					player2.OnControllerAxis(event.caxis);
+					break;
 					}
 				}
 				//update section
 				UpdateBackground();
-
+				player1.Update(deltaTime);
+				player2.Update(deltaTime);
 				//start drawing
 				//clear SDL renderer
 				SDL_RenderClear(renderer);
@@ -878,7 +864,11 @@ int main(int argc, char* argv[]) {
 
 				SDL_RenderCopy(renderer, bkgd2, NULL, &bkgd2pos);
 
-				SDL_RenderCopy(renderer, player2n, NULL, &player2npos);
+				//SDL_RenderCopy(renderer, player2n, NULL, &player2npos);
+
+
+				player1.Draw(renderer);
+				player2.Draw(renderer);
 
 				//SDL Render present
 				SDL_RenderPresent(renderer);

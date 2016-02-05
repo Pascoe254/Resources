@@ -24,8 +24,8 @@ using namespace std;
 class Player{
 public:
 
-	string playerNum;
-
+	int playerNum;
+	string playerpath;
 	SDL_Surface *surface;
 	SDL_Texture *texture;
 	SDL_Rect posRect;
@@ -35,7 +35,7 @@ public:
 
 	float pos_X,pos_Y;
 
-	Player(SDL_Renderer *renderer,int pNum,string fliepath,float x,float y);
+	Player(SDL_Renderer *renderer,int pNum,string filepath,float x,float y);
 
 	void Update(float deltaTime);
 

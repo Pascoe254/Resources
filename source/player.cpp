@@ -6,16 +6,15 @@ Player::Player(SDL_Renderer *renderer,int pNum,string filePath,float x,float y)
 {
 	playerNum = pNum;
 
-	speed=500.f;
-
+	speed=500.0f;
 
 
 	if(playerNum==0){
-		playerPath = filePath + "player.png";
+		playerpath = filePath + "/Player1.png";
 	}else{
-		playerPath = filePath + "player2.png";
+		playerpath = filePath + "/Player2.png";
 	}
-	surface = IMG_Load(playerPath.c_str());
+	surface = IMG_Load(playerpath.c_str());
 
 	texture = SDL_CreateTextureFromSurface(renderer,surface);
 
@@ -40,7 +39,7 @@ Player::Player(SDL_Renderer *renderer,int pNum,string filePath,float x,float y)
 	yDir=0;
 }
 
-Player::Update(float deltaTime)
+void Player::Update(float deltaTime)
 {
 	pos_X+=(speed*xDir)*deltaTime;
 	pos_Y+=(speed*yDir)*deltaTime;
@@ -89,7 +88,7 @@ void Player::OnControllerButton(const SDL_ControllerButtonEvent event)
 
 	if(event.which == 1 && playerNum ==1)
 	{
-		if(event.button==0)
+	if(event.button==0)
 		{
 			cout << "Player 2-Button A" << endl;
 		}
@@ -107,7 +106,7 @@ void Player::OnControllerAxis(const SDL_ControllerAxisEvent event)
 				xDir=-1.0f;
 			}
 
-			if(event.value < -JOYSTICK_DEAD_ZONE)
+			if(event.value > JOYSTICK_DEAD_ZONE)
 			{
 				xDir=1.0f;
 			}
@@ -125,7 +124,7 @@ void Player::OnControllerAxis(const SDL_ControllerAxisEvent event)
 				yDir=-1.0f;
 			}
 
-			if(event.value < -JOYSTICK_DEAD_ZONE)
+			if(event.value > JOYSTICK_DEAD_ZONE)
 			{
 				yDir=1.0f;
 			}
@@ -135,5 +134,49 @@ void Player::OnControllerAxis(const SDL_ControllerAxisEvent event)
 			}
 		}
 	}
+
+	if(event.which == 1 && playerNum ==1)
+		{
+			if(event.axis==0){
+
+				if(event.value < -JOYSTICK_DEAD_ZONE)
+				{
+					xDir=-1.0f;
+				}
+
+				if(event.value > JOYSTICK_DEAD_ZONE)
+				{
+					xDir=1.0f;
+				}
+				else
+				{
+					xDir=0.0f;
+				}
+
+			}
+
+			if(event.axis==1){
+
+				if(event.value < -JOYSTICK_DEAD_ZONE)
+				{
+					yDir=-1.0f;
+				}
+
+				if(event.value > JOYSTICK_DEAD_ZONE)
+				{
+					yDir=1.0f;
+				}
+				else
+				{
+					yDir=0.0f;
+				}
+			}
+		}
 }
+
+Player::~Player()
+{
+	SDL_DestroyTexture(texture);
+}
+
 
