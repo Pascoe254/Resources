@@ -2,12 +2,14 @@
 
 #include "SDL2/SDL.h"
 #include "SDL2_image/SDL_image.h"
+#include "SDL2_mixer/SDL_mixer.h"
 
 #endif
 
 #if defined(__linux__)
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
+#include "SDL2/SDL_mixer.h"
 #include <unistd.h>
 #endif
 
@@ -17,6 +19,7 @@
 
 #include "SDL.h"
 #include "SDL_image.h"
+#include "SDL_mixer.h"
 #endif
 
 #if defined(_WIN32) || (_WIN64)
@@ -162,6 +165,8 @@ int main(int argc, char* argv[]) {
 	//create a string linking to the mac's image folder
 	string s_cwd_images = s_cwd + "/Resources/images";
 
+	string audio_dir = s_cwd + "/Resources/audio";
+
 	//test
 	cout << s_cwd_images << endl;
 
@@ -177,6 +182,8 @@ int main(int argc, char* argv[]) {
 	//create a string linking to the mac's image folder
 	string s_cwd_images = s_cwd + "/Resources/images";
 
+	string audio_dir = s_cwd + "/Resources/audio";
+
 #endif
 
 #if defined(_WIN32) || (_WIN64)
@@ -187,6 +194,8 @@ int main(int argc, char* argv[]) {
 
 	//create a string linking to the mac's image folder
 	string s_cwd_images = s_cwd + "\\Resources\\images\\";
+
+	string audio_dir = s_cwd + "\\Resources\\audio\\";
 #endif
 
 	SDL_Window *window;                    // Declare a pointer
@@ -583,8 +592,16 @@ int main(int argc, char* argv[]) {
 	bool players1Over = false, players2Over=false,instructionsOver = false,quitOver = false, menuOver = false, playOver=false;
 
 
-	// The window is open: could enter program loop here (see SDL_PollEvent())
+	Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT,2,2048);
 
+	Mix_Music *bgm = Mix_LoadMUS((audio_dir + "/background.wav").c_str());
+
+	if(!Mix_PlayingMusic())
+		Mix_PlayMusic(bgm,-1);
+
+	Mix_Chunk *overSound = Mix_LoadMUS((audio_dir + "/over.wav").c_str());
+
+	Mix_Chunk *pressedSound = Mix_LoadMUS((audio_dir + "/pressed.wav").c_str());
 
 
 	// The window is open: could enter program loop here (see SDL_PollEvent())

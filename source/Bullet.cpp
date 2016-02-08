@@ -34,7 +34,7 @@ void Bullet::Update(float deltaTime)
 	{
 		pos_Y += (speed *yDir) * deltaTime;
 
-		posRect.y = (int)(pos_Y = 0.5f);
+		posRect.y = (int)(pos_Y + 0.5f);
 		
 		if (posRect.y < (0 - posRect.h)) {
 			posRect.x = -1000;
@@ -51,5 +51,5 @@ void Bullet::Draw(SDL_Renderer *renderer) {
 
 Bullet::~Bullet()
 {
-	SDL_DestroyTexture(texture);
+	//SDL_DestroyTexture(texture);
 }

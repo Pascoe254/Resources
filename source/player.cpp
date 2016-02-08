@@ -161,8 +161,7 @@ void Player::OnControllerAxis(const SDL_ControllerAxisEvent event)
 			{
 				xDir=-1.0f;
 			}
-
-			if(event.value > JOYSTICK_DEAD_ZONE)
+			else if(event.value > JOYSTICK_DEAD_ZONE)
 			{
 				xDir=1.0f;
 			}
@@ -180,7 +179,7 @@ void Player::OnControllerAxis(const SDL_ControllerAxisEvent event)
 				yDir=-1.0f;
 			}
 
-			if(event.value > JOYSTICK_DEAD_ZONE)
+			else if(event.value > JOYSTICK_DEAD_ZONE)
 			{
 				yDir=1.0f;
 			}
@@ -198,9 +197,7 @@ void Player::OnControllerAxis(const SDL_ControllerAxisEvent event)
 				if(event.value < -JOYSTICK_DEAD_ZONE)
 				{
 					xDir=-1.0f;
-				}
-
-				if(event.value > JOYSTICK_DEAD_ZONE)
+				}else if(event.value > JOYSTICK_DEAD_ZONE)
 				{
 					xDir=1.0f;
 				}
@@ -216,9 +213,7 @@ void Player::OnControllerAxis(const SDL_ControllerAxisEvent event)
 				if(event.value < -JOYSTICK_DEAD_ZONE)
 				{
 					yDir=-1.0f;
-				}
-
-				if(event.value > JOYSTICK_DEAD_ZONE)
+				}else if(event.value > JOYSTICK_DEAD_ZONE)
 				{
 					yDir=1.0f;
 				}
