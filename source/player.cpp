@@ -37,6 +37,24 @@ Player::Player(SDL_Renderer *renderer,int pNum,string filePath,float x,float y)
 
 	xDir=0;
 	yDir=0;
+
+	string bulletPath;
+
+	if (playerNum == 0) {
+
+		bulletPath = filePath + "/bullet.png";
+	}
+	else {
+		bulletPath = filePath + "/bullet2.png";
+	}
+
+	for (int i = 0; i < 10; i++)
+	{
+		Bullet tmpBullet(renderer, bulletPath, -1000, -1000);
+
+		bulletList.push_back(tmpBullet);
+	}
+
 }
 
 void Player::Update(float deltaTime)
@@ -69,11 +87,47 @@ void Player::Update(float deltaTime)
 		posRect.y=768-posRect.h;
 		pos_Y=posRect.y;
 	}
+	for (int i = 0; i < bulletList.size(); i++)
+	{
+		if (bulletList[i].active) {
+			bulletList[i].Update(deltaTime);
 
+		}
+
+	}
 
 }
 void Player::Draw(SDL_Renderer *renderer){
 	SDL_RenderCopy(renderer,texture,NULL,&posRect);
+
+	for (int i = 0; i < bulletList.size(); i++)
+	{
+		if (bulletList[i].active) {
+			bulletList[i].Draw(renderer); 
+
+		}
+	}
+}
+
+void Player::CreateBullet()
+{
+	for (int i = 0; i < bulletList.size(); i++)
+	{
+		if (bulletList[i].active == false) {
+			bulletList[i].active = true;
+
+			bulletList[i].posRect.x = (pos_X + (posRect.w / 2));
+
+			bulletList[i].posRect.x = (bulletList[i].posRect.x - (bulletList[i].posRect.w / 2));
+			bulletList[i].posRect.y = posRect.y;
+
+			bulletList[i].pos_X = pos_X;
+			bulletList[i].pos_Y = pos_Y;
+
+			break;
+
+		}
+	}
 }
 
 void Player::OnControllerButton(const SDL_ControllerButtonEvent event)
@@ -83,6 +137,7 @@ void Player::OnControllerButton(const SDL_ControllerButtonEvent event)
 		if(event.button==0)
 		{
 			cout << "Player 1-Button A" << endl;
+			CreateBullet();
 		}
 	}
 
@@ -91,6 +146,7 @@ void Player::OnControllerButton(const SDL_ControllerButtonEvent event)
 	if(event.button==0)
 		{
 			cout << "Player 2-Button A" << endl;
+			CreateBullet();
 		}
 	}
 }

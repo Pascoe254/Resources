@@ -23,6 +23,7 @@
 
 #include<direct.h>
 #define getcwd _getcwd
+
 #endif
 
 #include <stdio.h>
@@ -546,10 +547,21 @@ int main(int argc, char* argv[]) {
 
 
 	//set up game controller variable *****
-	SDL_GameController* gGameController = NULL;
+
+
+	//****Turn on game controller events**
+	SDL_GameControllerEventState(SDL_ENABLE);
+
+
+	SDL_GameController* gGameController0 = NULL;
 
 	//*****Open game controller up****
-	gGameController = SDL_GameControllerOpen(0);
+	gGameController0 = SDL_GameControllerOpen(0);
+
+	SDL_GameController* gGameController1 = NULL;
+
+	//*****Open game controller up****
+	gGameController1 = SDL_GameControllerOpen(1);
 
 	//****Turn on game controller events**
 	SDL_GameControllerEventState(SDL_ENABLE);
@@ -826,7 +838,7 @@ int main(int argc, char* argv[]) {
 					}
 					switch (event.type) {
 					case SDL_CONTROLLERBUTTONDOWN:
-						if (event.cdevice.which == 0) {
+						if (event.cdevice.which == 0|| event.cdevice.which == 1) {
 							if (event.cbutton.button
 									== SDL_CONTROLLER_BUTTON_X) {
 								players2 = false;

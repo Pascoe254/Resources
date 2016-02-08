@@ -19,10 +19,23 @@
 
 #include <stdio.h>
 #include <iostream>
+
+//bullet includes
+#include <vector>
+#include "bullet.h"
+
 using namespace std;
 
 class Player{
+protected:
+
+
+
 public:
+
+	vector<Bullet> bulletList;
+
+
 
 	int playerNum;
 	string playerpath;
@@ -45,6 +58,10 @@ public:
 
 	void OnControllerButton(const SDL_ControllerButtonEvent event);
 
+
+
 	~Player();
 
+private:
+	void CreateBullet();
 };
