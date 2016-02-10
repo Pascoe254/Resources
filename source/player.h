@@ -2,12 +2,14 @@
 
 #include "SDL2/SDL.h"
 #include "SDL2_image/SDL_image.h"
+#include "SDL2_image/SDL_mixer.h"
 
 #endif
 
 #if defined(__linux__)
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
+#include "SDL2/SDL_mixer.h"
 #endif
 
 
@@ -15,10 +17,12 @@
 #if defined(_WIN32) || (_WIN64)
 #include "SDL.h"
 #include "SDL_image.h"
+#include "SDL_mixer.h"
 #endif
 
-#include <stdio.h>
+#include <string>
 #include <iostream>
+#include <sstream>
 
 //bullet includes
 #include <vector>
@@ -32,6 +36,8 @@ protected:
 
 
 public:
+
+	Mix_Chunk *laser;
 
 	vector<Bullet> bulletList;
 
@@ -48,7 +54,7 @@ public:
 
 	float pos_X,pos_Y;
 
-	Player(SDL_Renderer *renderer,int pNum,string filepath,float x,float y);
+	Player(SDL_Renderer *renderer,int pNum,string filepath,string audioPath,float x,float y);
 
 	void Update(float deltaTime);
 
