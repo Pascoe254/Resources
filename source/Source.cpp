@@ -3,6 +3,7 @@
 #include "SDL2/SDL.h"
 #include "SDL2_image/SDL_image.h"
 #include "SDL2_mixer/SDL_mixer.h"
+#include "SDL2_ttf/SDL_ttf.h"
 
 #endif
 
@@ -10,6 +11,7 @@
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
 #include "SDL2/SDL_mixer.h"
+#include "SDL2/SDL_ttf.h"
 #include <unistd.h>
 #endif
 
@@ -20,6 +22,7 @@
 #include "SDL.h"
 #include "SDL_image.h"
 #include "SDL_mixer.h"
+#include "SDL_ttf"
 #endif
 
 #if defined(_WIN32) || (_WIN64)
@@ -881,7 +884,7 @@ int main(int argc, char* argv[]) {
 				//update section
 				UpdateBackground();
 
-				player1.Update(deltaTime);
+				player1.Update(deltaTime,renderer);
 
 				//start drawing
 				//clear SDL renderer
@@ -945,8 +948,8 @@ int main(int argc, char* argv[]) {
 				}
 				//update section
 				UpdateBackground();
-				player1.Update(deltaTime);
-				player2.Update(deltaTime);
+				player1.Update(deltaTime,renderer);
+				player2.Update(deltaTime,renderer);
 				//start drawing
 				//clear SDL renderer
 				SDL_RenderClear(renderer);

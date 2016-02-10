@@ -2,7 +2,8 @@
 
 #include "SDL2/SDL.h"
 #include "SDL2_image/SDL_image.h"
-#include "SDL2_image/SDL_mixer.h"
+#include "SDL2_mixer/SDL_mixer.h"
+#include "SDL2_ttf/SDL_ttf.h"
 
 #endif
 
@@ -37,6 +38,22 @@ protected:
 
 public:
 
+	int playerScore,oldScore,playerLives,oldLives;
+
+	TTF_Font* font;
+
+	SDL_Color colorP1 = {0,255,0,0255};
+
+	SDL_Color colorP2 = {0,0,255,0255};
+
+	SDL_Surface *scoreSurface, *livesSurface;
+
+	SDL_Texture *scoreTexture, *livesTexture;
+
+	SDL_Rect scorePos, livesPos;
+
+	string tempScore,tempLives;
+
 	Mix_Chunk *laser;
 
 	vector<Bullet> bulletList;
@@ -56,7 +73,7 @@ public:
 
 	Player(SDL_Renderer *renderer,int pNum,string filepath,string audioPath,float x,float y);
 
-	void Update(float deltaTime);
+	void Update(float deltaTime,SDL_Renderer *renderer);
 
 	void Draw(SDL_Renderer *renderer);
 
@@ -67,6 +84,8 @@ public:
 
 
 	~Player();
+
+	void UpdateScore(SDL_Renderer *renderer);
 
 private:
 	void CreateBullet();

@@ -8,8 +8,31 @@ Player::Player(SDL_Renderer *renderer,int pNum,string filePath,string audioPath,
 
 	speed=500.0f;
 
-	laser = Mix_LoadWAV((audioPath + "/laser.wav").c_str());
+	laser = Mix_LoadWAV((audioPath + "/lazer.wav").c_str());
 
+	//init for score and lives var
+	oldScore=0;
+	playerScore=0;
+	oldLives=0;
+	playerLives=3;
+
+	TTF_Init();
+
+	font = TTF_OpenFont((audioPath + "/Comic").c_str(), 40);
+
+	if(playerNum==0){
+		scorePos.x=scorePos.y=10;
+		livesPos.x=10;
+		livesPos.y=40;
+	}else{
+		scorePos.x=650;
+		scorePos.y=10;
+		livesPos.x=640;
+		livesPos.y=40;
+	}
+
+	//update score method
+	UpdateScore(renderer);
 
 	if(playerNum==0){
 		playerpath = filePath + "/Player1.png";
@@ -59,7 +82,32 @@ Player::Player(SDL_Renderer *renderer,int pNum,string filePath,string audioPath,
 
 }
 
-void Player::Update(float deltaTime)
+//update score
+void Player::UpdateScore(SDL_Renderer *renderer){
+
+	string Result;
+	ostringstream convert;
+	convert <<playerScore;
+	Result = convert.str();
+
+	tempScore = "Player Score: " + Result;
+
+	if(playerNum == 0)
+	{
+		scoreSurface = TTF_RenderText_Solid(font, tempScore.c_str(), colorP1);
+	}else{
+
+		scoreSurface = TTF_RenderText_Solid(font, tempScore.c_str(), colorP2);
+	}
+	scoreTexture = SDL_CreateTextureFromSurface(renderer, scoreSurface);
+
+	SDL_QueryTexture(scoreTexture,NULL,NULL,&scorePos.w,&scorePos.h);
+
+	SDL_FreeSurface(scoreSurface);
+	oldScore = playerScore;
+}
+
+void Player::Update(float deltaTime, SDL_Renderer *renderer)
 {
 	pos_X+=(speed*xDir)*deltaTime;
 	pos_Y+=(speed*yDir)*deltaTime;
@@ -98,6 +146,11 @@ void Player::Update(float deltaTime)
 
 	}
 
+	if(playerScore != oldScore)
+	{
+		UpdateScore(renderer);
+	}
+
 }
 void Player::Draw(SDL_Renderer *renderer){
 	SDL_RenderCopy(renderer,texture,NULL,&posRect);
@@ -109,6 +162,7 @@ void Player::Draw(SDL_Renderer *renderer){
 
 		}
 	}
+	SDL_RenderCopy(renderer, scoreTexture,NULL,&scorePos);
 }
 
 void Player::CreateBullet()
@@ -147,7 +201,7 @@ void Player::OnControllerButton(const SDL_ControllerButtonEvent event)
 
 	if(event.which == 1 && playerNum ==1)
 	{
-	if(event.button==0)
+		if(event.button==0)
 		{
 			cout << "Player 2-Button A" << endl;
 			CreateBullet();
@@ -195,38 +249,38 @@ void Player::OnControllerAxis(const SDL_ControllerAxisEvent event)
 	}
 
 	if(event.which == 1 && playerNum ==1)
-		{
-			if(event.axis==0){
+	{
+		if(event.axis==0){
 
-				if(event.value < -JOYSTICK_DEAD_ZONE)
-				{
-					xDir=-1.0f;
-				}else if(event.value > JOYSTICK_DEAD_ZONE)
-				{
-					xDir=1.0f;
-				}
-				else
-				{
-					xDir=0.0f;
-				}
-
+			if(event.value < -JOYSTICK_DEAD_ZONE)
+			{
+				xDir=-1.0f;
+			}else if(event.value > JOYSTICK_DEAD_ZONE)
+			{
+				xDir=1.0f;
+			}
+			else
+			{
+				xDir=0.0f;
 			}
 
-			if(event.axis==1){
+		}
 
-				if(event.value < -JOYSTICK_DEAD_ZONE)
-				{
-					yDir=-1.0f;
-				}else if(event.value > JOYSTICK_DEAD_ZONE)
-				{
-					yDir=1.0f;
-				}
-				else
-				{
-					yDir=0.0f;
-				}
+		if(event.axis==1){
+
+			if(event.value < -JOYSTICK_DEAD_ZONE)
+			{
+				yDir=-1.0f;
+			}else if(event.value > JOYSTICK_DEAD_ZONE)
+			{
+				yDir=1.0f;
+			}
+			else
+			{
+				yDir=0.0f;
 			}
 		}
+	}
 }
 
 Player::~Player()
