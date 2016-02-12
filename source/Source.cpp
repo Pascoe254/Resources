@@ -171,7 +171,7 @@ int main(int argc, char* argv[]) {
 	string audio_dir = s_cwd + "/Resources/audio";
 
 	//test
-	cout << s_cwd_images << endl;
+	//cout << s_cwd_images << endl;
 
 #endif
 
@@ -220,6 +220,9 @@ int main(int argc, char* argv[]) {
 		printf("Could not create window: %s\n", SDL_GetError());
 		return 1;
 	}
+
+
+
 
 	SDL_Renderer* renderer = NULL;
 
@@ -586,7 +589,7 @@ int main(int argc, char* argv[]) {
 	//setup initial state
 	GameState gameState = MENU;
 
-	//bolean values to control movement through states
+	//boolean values to control movement through states
 
 	bool menu = false, instructions = false, players1 = false, players2 = false, win = false, lose = false, quit = false;
 	bool players1Over = false, players2Over = false, instructionsOver = false, quitOver = false, menuOver = false, playOver = false;
@@ -1116,17 +1119,7 @@ int main(int argc, char* argv[]) {
 					switch (event.type) {
 					case SDL_CONTROLLERBUTTONDOWN:
 						if (event.cdevice.which == 0) {
-							if (event.cbutton.button
-								== SDL_CONTROLLER_BUTTON_X) {
-								lose = false;
-								gameState = MENU;
 
-							}
-							if (event.cbutton.button
-								== SDL_CONTROLLER_BUTTON_Y) {
-								lose = false;
-								gameState = PLAYERS1;
-							}
 
 							if (event.cbutton.button
 								== SDL_CONTROLLER_BUTTON_A) {
@@ -1144,9 +1137,8 @@ int main(int argc, char* argv[]) {
 									Mix_PlayChannel(-1, pressedSound, 0);
 									menuOver = false;
 								}
-
-
 							}
+						}
 							break;
 					case SDL_CONTROLLERAXISMOTION:
 						moveCursor(event.caxis);
@@ -1180,7 +1172,7 @@ int main(int argc, char* argv[]) {
 					//clear SDL renderer
 					SDL_RenderClear(renderer);
 
-					//drae the background
+					//draw the background
 					SDL_RenderCopy(renderer, bkgd1, NULL, &bkgd1pos);
 
 					SDL_RenderCopy(renderer, bkgd2, NULL, &bkgd2pos);
@@ -1205,9 +1197,11 @@ int main(int argc, char* argv[]) {
 
 					//SDL Render present
 					SDL_RenderPresent(renderer);
-				}
-				break;
-			}//end win case
+
+
+			}
+			break;//end win case
+
 		default:
 			break;
 			}

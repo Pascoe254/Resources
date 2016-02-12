@@ -18,7 +18,7 @@ Player::Player(SDL_Renderer *renderer,int pNum,string filePath,string audioPath,
 
 	TTF_Init();
 
-	font = TTF_OpenFont((audioPath + "/Comic").c_str(), 40);
+	font = TTF_OpenFont((audioPath + "/Comic.ttf").c_str(), 40);
 
 	if(playerNum==0){
 		scorePos.x=scorePos.y=10;
@@ -27,7 +27,7 @@ Player::Player(SDL_Renderer *renderer,int pNum,string filePath,string audioPath,
 	}else{
 		scorePos.x=650;
 		scorePos.y=10;
-		livesPos.x=640;
+		livesPos.x=650;
 		livesPos.y=40;
 	}
 
@@ -172,6 +172,7 @@ void Player::CreateBullet()
 		if (bulletList[i].active == false) {
 
 			Mix_PlayChannel(-1, laser, 0);
+
 			bulletList[i].active = true;
 
 			bulletList[i].posRect.x = (pos_X + (posRect.w / 2));

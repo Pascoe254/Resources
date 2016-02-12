@@ -25,16 +25,15 @@
 #include <iostream>
 #include <sstream>
 
+
+
+using namespace std;
+
 //bullet includes
 #include <vector>
 #include "bullet.h"
 
-using namespace std;
-
 class Player{
-protected:
-
-
 
 public:
 
@@ -58,12 +57,14 @@ public:
 
 	vector<Bullet> bulletList;
 
-
-
 	int playerNum;
+
 	string playerpath;
+
 	SDL_Surface *surface;
+
 	SDL_Texture *texture;
+
 	SDL_Rect posRect;
 
 	float xDir,yDir;
@@ -82,10 +83,11 @@ public:
 	void OnControllerButton(const SDL_ControllerButtonEvent event);
 
 
+	void UpdateScore(SDL_Renderer *renderer);
 
 	~Player();
 
-	void UpdateScore(SDL_Renderer *renderer);
+
 
 private:
 	void CreateBullet();
