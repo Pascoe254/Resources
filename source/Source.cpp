@@ -1,3 +1,4 @@
+
 #if defined(__APPLE__)
 
 #include "SDL2/SDL.h"
@@ -35,7 +36,7 @@
 #include <stdio.h>
 #include <iostream>
 #include "player.h"
-#include "enemy.h"
+#include "Enemy.h"
 #include <vector>
 #include <stdlib.h>
 #include <time.h>

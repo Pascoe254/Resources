@@ -22,7 +22,7 @@ Enemy::Enemy(SDL_Renderer* renderer, string filePath)
 	xDir = 0;
 	yDir = 1;
 
-	angle - rand() % (360);
+	angle = rand() % (360);
 
 	center.x = posRect.w / 2;
 
@@ -38,7 +38,7 @@ void Enemy::Reset() {
 
 	speed *= 100;
 
-	posRect.x = rand() & (1024 - posRect.w) + 1;
+	posRect.x = rand() % (1024 - posRect.w) + 1;
 	posRect.y = 0 - posRect.h;
 
 	pos_X = posRect.x;
