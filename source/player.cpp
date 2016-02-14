@@ -4,6 +4,8 @@ const int JOYSTICK_DEAD_ZONE = 8000;
 
 Player::Player(SDL_Renderer *renderer,int pNum,string filePath,string audioPath,float x,float y)
 {
+	active = true;
+
 	playerNum = pNum;
 
 	speed=500.0f;
@@ -33,6 +35,8 @@ Player::Player(SDL_Renderer *renderer,int pNum,string filePath,string audioPath,
 
 	//update score method
 	UpdateScore(renderer);
+
+	UpdateLives(renderer);
 
 	if(playerNum==0){
 		playerpath = filePath + "/Player1.png";
@@ -82,12 +86,68 @@ Player::Player(SDL_Renderer *renderer,int pNum,string filePath,string audioPath,
 
 }
 
+void Player::Reset() {
+	if (playerNum == 0) {
+		posRect.x = 250;
+		posRect.y = 500;
+	}
+	else {
+		posRect.x = 550.0;
+		posRect.y = 500.0;
+	}
+		pos_X = posRect.x;
+		pos_Y = posRect.y;
+		playerLives = 3;
+		playerScore = 0;
+		xDir = 0;
+		yDir = 0;
+		active = true;
+	
+
+}
+
+//update lives
+void Player::UpdateLives(SDL_Renderer *renderer) {
+
+	string Result;
+	ostringstream convert;
+	convert << playerLives;
+	Result = convert.str();
+
+	tempLives = "Player Lives: " + Result;
+
+	if (playerNum == 0)
+	{
+		livesSurface = TTF_RenderText_Solid(font, tempLives.c_str(), colorP1);
+	}
+	else {
+
+		livesSurface = TTF_RenderText_Solid(font, tempLives.c_str(), colorP2);
+	}
+	livesTexture = SDL_CreateTextureFromSurface(renderer, livesSurface);
+
+	SDL_QueryTexture(livesTexture, NULL, NULL, &livesPos.w, &livesPos.h);
+
+	SDL_FreeSurface(livesSurface);
+	oldLives = playerLives;
+
+	if (playerLives <= 0)
+	{
+		active = false;
+
+		posRect.x = posRect.y = -2000;
+
+		pos_X = pos_Y = -2000;
+
+	}
+}
+
 //update score
 void Player::UpdateScore(SDL_Renderer *renderer){
 
 	string Result;
 	ostringstream convert;
-	convert <<playerScore;
+	convert << playerScore;
 	Result = convert.str();
 
 	tempScore = "Player Score: " + Result;
@@ -151,6 +211,11 @@ void Player::Update(float deltaTime, SDL_Renderer *renderer)
 		UpdateScore(renderer);
 	}
 
+	if (playerLives != oldLives)
+	{
+		UpdateLives(renderer);
+	}
+
 }
 void Player::Draw(SDL_Renderer *renderer){
 	SDL_RenderCopy(renderer,texture,NULL,&posRect);
@@ -163,6 +228,7 @@ void Player::Draw(SDL_Renderer *renderer){
 		}
 	}
 	SDL_RenderCopy(renderer, scoreTexture,NULL,&scorePos);
+	SDL_RenderCopy(renderer, livesTexture, NULL, &livesPos);
 }
 
 void Player::CreateBullet()
@@ -195,7 +261,7 @@ void Player::OnControllerButton(const SDL_ControllerButtonEvent event)
 	{
 		if(event.button==0)
 		{
-			cout << "Player 1-Button A" << endl;
+			
 			CreateBullet();
 		}
 	}
@@ -204,7 +270,7 @@ void Player::OnControllerButton(const SDL_ControllerButtonEvent event)
 	{
 		if(event.button==0)
 		{
-			cout << "Player 2-Button A" << endl;
+			
 			CreateBullet();
 		}
 	}

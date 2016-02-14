@@ -11,6 +11,7 @@
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
 #include "SDL2/SDL_mixer.h"
+#include "SDL2/SDL_ttf.h"
 #endif
 
 
@@ -19,6 +20,7 @@
 #include "SDL.h"
 #include "SDL_image.h"
 #include "SDL_mixer.h"
+#include "SDL_ttf.h"
 #endif
 
 #include <string>
@@ -37,9 +39,11 @@ class Player{
 
 public:
 
+	bool active;
+
 	int playerScore,oldScore,playerLives,oldLives;
 
-	TTF_Font* font;
+	TTF_Font *font;
 
 	SDL_Color colorP1 = {0,255,0,0255};
 
@@ -84,6 +88,10 @@ public:
 
 
 	void UpdateScore(SDL_Renderer *renderer);
+
+	void UpdateLives(SDL_Renderer* renderer);
+
+	void Reset();
 
 	~Player();
 

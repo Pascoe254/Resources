@@ -3,11 +3,13 @@
 #include "SDL2/SDL.h"
 #include "SDL2_image/SDL_image.h"
 
+
 #endif
 
 #if defined(__linux__)
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
+
 #endif
 
 
@@ -15,17 +17,18 @@
 #if defined(_WIN32) || (_WIN64)
 #include "SDL.h"
 #include "SDL_image.h"
+
 #endif
 
-#include <stdio.h>
+#include <string>
 #include <iostream>
 using namespace std;
+#include <stdlib.h>
 
-class Bullet {
+class Enemy {
 
-public: 
-
-	bool active; 
+	public:
+	bool active;
 
 	SDL_Texture *texture;
 
@@ -37,15 +40,25 @@ public:
 
 	float pos_X, pos_Y;
 
-	Bullet(SDL_Renderer *renderer, string filePath, float x, float y);
+	float angle;
+
+	SDL_Point center;
+
+	Enemy(SDL_Renderer* renderer, string filePath);
 
 	void Update(float deltaTime);
 
-	void Draw(SDL_Renderer *renderer);
+	void Draw(SDL_Renderer* renderer);
 
 	void Reset();
 
-	~Bullet();
+	~Enemy();
+
+
+
+
+
+
 
 
 

@@ -22,7 +22,7 @@
 #include "SDL.h"
 #include "SDL_image.h"
 #include "SDL_mixer.h"
-#include "SDL_ttf"
+#include "SDL_ttf.h"
 #endif
 
 #if defined(_WIN32) || (_WIN64)
@@ -35,6 +35,12 @@
 #include <stdio.h>
 #include <iostream>
 #include "player.h"
+#include "enemy.h"
+#include <vector>
+#include <stdlib.h>
+#include <time.h>
+
+vector<Enemy> enemyList;
 using namespace std;
 
 //create the SDL_rectangle for the texture's position and size - x,y,w,h
@@ -60,7 +66,7 @@ void UpdateBackground() {
 	BG1pos_y += (bkgdSpeed * 1) * deltaTime;
 
 	//set new bkgsd1 position
-	bkgd1pos.y = (int) (BG1pos_y + 0.5f);
+	bkgd1pos.y = (int)(BG1pos_y + 0.5f);
 
 	//reset when off the bottom of the screen
 	if (bkgd1pos.y >= 768) {
@@ -72,7 +78,7 @@ void UpdateBackground() {
 	BG2pos_y += (bkgdSpeed * 1) * deltaTime;
 
 	//set new bkgsd1 position
-	bkgd2pos.y = (int) (BG2pos_y + 0.5f);
+	bkgd2pos.y = (int)(BG2pos_y + 0.5f);
 
 	//reset when off the bottom of the screen
 	if (bkgd2pos.y >= 768) {
@@ -84,38 +90,42 @@ void UpdateBackground() {
 
 const int JOYSTICK_DEAD_ZONE = 8000;
 
-float xDir,yDir;
+float xDir, yDir;
 
-float pos_x,pos_y;
+float pos_x, pos_y;
 
-SDL_Rect cursorpos,activepos;
+SDL_Rect cursorpos, activepos;
 
 int CursorSpeed = 400;
 
 
 
 
-void moveCursor(const SDL_ControllerAxisEvent event){
-	if (event.which == 0){
-		if(event.axis == 0)
+void moveCursor(const SDL_ControllerAxisEvent event) {
+	if (event.which == 0) {
+		if (event.axis == 0)
 		{
-			if(event.value < -JOYSTICK_DEAD_ZONE)
+			if (event.value < -JOYSTICK_DEAD_ZONE)
 			{
-				xDir=-1.0f;
-			}else if(event.value > JOYSTICK_DEAD_ZONE){
+				xDir = -1.0f;
+			}
+			else if (event.value > JOYSTICK_DEAD_ZONE) {
 				xDir = 1.0f;
-			}else{
+			}
+			else {
 				xDir = 0.0f;
 			}
 		}
 
-		if(event.axis == 1){
-			if(event.value < -JOYSTICK_DEAD_ZONE)
+		if (event.axis == 1) {
+			if (event.value < -JOYSTICK_DEAD_ZONE)
 			{
-				yDir=-1.0f;
-			}else if(event.value > JOYSTICK_DEAD_ZONE){
+				yDir = -1.0f;
+			}
+			else if (event.value > JOYSTICK_DEAD_ZONE) {
 				yDir = 1.0f;
-			}else{
+			}
+			else {
 				yDir = 0.0f;
 			}
 		}
@@ -123,41 +133,43 @@ void moveCursor(const SDL_ControllerAxisEvent event){
 
 }
 
-void UpdateCursor(float deltaTime){
+void UpdateCursor(float deltaTime) {
 	//update cursor
-	pos_x+=(CursorSpeed * xDir)*deltaTime;
-	pos_y+=(CursorSpeed * yDir)*deltaTime;
+	pos_x += (CursorSpeed * xDir)*deltaTime;
+	pos_y += (CursorSpeed * yDir)*deltaTime;
 
 	//assign to SDL_RECT ints x and y
-	cursorpos.x=(int)(pos_x+0.5f);
-	cursorpos.y=(int)(pos_y+0.5f);
+	cursorpos.x = (int)(pos_x + 0.5f);
+	cursorpos.y = (int)(pos_y + 0.5f);
 
 	activepos.x = cursorpos.x;
 	activepos.y = cursorpos.y;
 
-	if(cursorpos.x<0)
-		cursorpos.x=0;
-	pos_x=cursorpos.x;
+	if (cursorpos.x < 0)
+		cursorpos.x = 0;
+	pos_x = cursorpos.x;
 
-	if(cursorpos.x>1024-cursorpos.w)
+	if (cursorpos.x > 1024 - cursorpos.w)
 	{
-		cursorpos.x=1024-cursorpos.w;
-		pos_x=cursorpos.x;
+		cursorpos.x = 1024 - cursorpos.w;
+		pos_x = cursorpos.x;
 	}
 
 
-	if(cursorpos.y<0)
-		cursorpos.y=0;
-	pos_y=cursorpos.y;
+	if (cursorpos.y < 0)
+		cursorpos.y = 0;
+	pos_y = cursorpos.y;
 
-	if(cursorpos.y>768-cursorpos.h)
+	if (cursorpos.y > 768 - cursorpos.h)
 	{
-		cursorpos.y=768-cursorpos.h;
-		pos_y=cursorpos.y;
+		cursorpos.y = 768 - cursorpos.h;
+		pos_y = cursorpos.y;
 	}
 }
 
 int main(int argc, char* argv[]) {
+
+	srand(time(NULL));
 
 #if defined(__APPLE__)
 
@@ -587,7 +599,7 @@ int main(int argc, char* argv[]) {
 	};
 
 	//setup initial state
-	GameState gameState = MENU;
+	GameState gameState = PLAYERS1;
 
 	//boolean values to control movement through states
 
@@ -605,6 +617,8 @@ int main(int argc, char* argv[]) {
 	Mix_Chunk *overSound = Mix_LoadWAV((audio_dir + "/over.wav").c_str());
 
 	Mix_Chunk *pressedSound = Mix_LoadWAV((audio_dir + "/pressed.wav").c_str());
+
+	Mix_Chunk *explosionSound = Mix_LoadWAV((audio_dir + "/explosion.wav").c_str());
 
 	bool alreadyOver = false;
 
@@ -846,7 +860,20 @@ int main(int argc, char* argv[]) {
 			break;						//end instructions case
 
 		case PLAYERS1:
+
+			enemyList.clear();
+
+			//reset player
+			player1.Reset();
+
 			players1 = true;
+
+			for (int i = 0; i < 6; i++)
+			{
+				Enemy tmpEnemy(renderer, s_cwd_images);
+
+				enemyList.push_back(tmpEnemy);
+			}
 
 			while (players1) {
 				thistime = SDL_GetTicks();
@@ -875,11 +902,16 @@ int main(int argc, char* argv[]) {
 								gameState = LOSE;
 							}
 
-							player1.OnControllerButton(event.cbutton);
+							if (player1.active) {
+								player1.OnControllerButton(event.cbutton);
+							}
 						}
 						break;
+
 					case SDL_CONTROLLERAXISMOTION:
-						player1.OnControllerAxis(event.caxis);
+						if (player1.active) {
+							player1.OnControllerAxis(event.caxis);
+						}
 						break;
 					}
 				}
@@ -887,7 +919,63 @@ int main(int argc, char* argv[]) {
 				//update section
 				UpdateBackground();
 
-				player1.Update(deltaTime,renderer);
+				if (player1.active) {
+					player1.Update(deltaTime, renderer);
+				}
+
+				for (int i = 0; i < enemyList.size(); i++)
+				{
+
+					enemyList[i].Update(deltaTime);
+				}
+
+				if (player1.active == true) {
+
+					for (int i = 0; i < player1.bulletList.size(); i++)
+					{
+						if (player1.bulletList[i].active == true) {
+
+							for (int j = 0; j < enemyList.size(); j++)
+							{
+
+								if (SDL_HasIntersection(&player1.bulletList[i].posRect, &enemyList[j].posRect)) {
+									Mix_PlayChannel(-1, explosionSound, 0);
+
+									enemyList[j].Reset();
+
+									player1.bulletList[i].Reset();
+
+									player1.playerScore += 50;
+
+
+								}
+							}
+						}
+					}
+
+
+					for (int i = 0; i < enemyList.size(); i++)
+					{
+						if (SDL_HasIntersection(&player1.posRect,
+							&enemyList[i].posRect)) {
+
+							Mix_PlayChannel(-1, explosionSound, 0);
+
+							enemyList[i].Reset();
+
+							player1.playerLives -= 1;
+
+							if (player1.playerLives <= 0)
+							{
+								players1 = false;
+								gameState = LOSE;
+								break;
+
+							}
+						}
+					}
+				}
+
 
 				//start drawing
 				//clear SDL renderer
@@ -898,7 +986,11 @@ int main(int argc, char* argv[]) {
 
 				SDL_RenderCopy(renderer, bkgd2, NULL, &bkgd2pos);
 
-				//SDL_RenderCopy(renderer, player1n, NULL, &player1npos);
+				for (int i = 0; i < enemyList.size(); i++)
+				{
+
+					enemyList[i].Draw(renderer);
+				}
 
 				player1.Draw(renderer);
 
@@ -907,7 +999,19 @@ int main(int argc, char* argv[]) {
 			}
 			break;					//end player 1 case
 		case PLAYERS2:
+			enemyList.clear();
+
+			player1.Reset();
+			player2.Reset();
+
 			players2 = true;
+
+			for (int i = 0; i < 12; i++)
+			{
+				Enemy tmpEnemy(renderer, s_cwd_images);
+
+				enemyList.push_back(tmpEnemy);
+			}
 
 
 			while (players2) {
@@ -938,21 +1042,138 @@ int main(int argc, char* argv[]) {
 							}
 
 						}
-
-						player1.OnControllerButton(event.cbutton);
-						player2.OnControllerButton(event.cbutton);
+						if (player1.active) {
+							player1.OnControllerButton(event.cbutton);
+						}
+						if (player2.active) {
+							player2.OnControllerButton(event.cbutton);
+						}
 						break;
 
 					case SDL_CONTROLLERAXISMOTION:
-						player1.OnControllerAxis(event.caxis);
-						player2.OnControllerAxis(event.caxis);
+						if (player1.active) {
+							player1.OnControllerAxis(event.caxis);
+						}
+						if (player2.active) {
+							player2.OnControllerAxis(event.caxis);
+						}
 						break;
 					}
 				}
 				//update section
 				UpdateBackground();
-				player1.Update(deltaTime,renderer);
-				player2.Update(deltaTime,renderer);
+
+				if (player1.active) {
+					player1.Update(deltaTime, renderer);
+				}
+				if (player2.active) {
+					player2.Update(deltaTime, renderer);
+				}
+
+				for (int i = 0; i < enemyList.size(); i++)
+				{
+
+					enemyList[i].Update(deltaTime);
+				}
+
+
+				if (player1.active == true) {
+
+					for (int i = 0; i < player1.bulletList.size(); i++)
+					{
+						if (player1.bulletList[i].active == true) {
+
+							for (int j = 0; j < enemyList.size(); j++)
+							{
+
+								if (SDL_HasIntersection(&player1.bulletList[i].posRect, &enemyList[j].posRect)) {
+									Mix_PlayChannel(-1, explosionSound, 0);
+
+									enemyList[j].Reset();
+
+									player1.bulletList[i].Reset();
+
+									player1.playerScore += 50;
+
+
+								}
+							}
+						}
+					}
+
+
+					for (int i = 0; i < enemyList.size(); i++)
+					{
+						if (SDL_HasIntersection(&player1.posRect,
+							&enemyList[i].posRect)) {
+
+							Mix_PlayChannel(-1, explosionSound, 0);
+
+							enemyList[i].Reset();
+
+							player1.playerLives -= 1;
+
+							if (player2.playerLives <= 0 && player1.playerLives == 0)
+							{
+								players2 = false;
+								gameState = LOSE;
+								break;
+
+							}
+						}
+					}
+				}
+
+
+				if (player2.active == true) {
+
+					for (int i = 0; i < player2.bulletList.size(); i++)
+					{
+						if (player2.bulletList[i].active == true) {
+
+							for (int j = 0; j < enemyList.size(); j++)
+							{
+
+								if (SDL_HasIntersection(&player2.bulletList[i].posRect, &enemyList[j].posRect)) {
+									Mix_PlayChannel(-1, explosionSound, 0);
+
+									enemyList[j].Reset();
+
+									player2.bulletList[i].Reset();
+
+									player2.playerScore += 50;
+
+
+								}
+							}
+						}
+					}
+
+
+					for (int i = 0; i < enemyList.size(); i++)
+					{
+						if (SDL_HasIntersection(&player2.posRect,
+							&enemyList[i].posRect)) {
+
+							Mix_PlayChannel(-1, explosionSound, 0);
+
+							enemyList[i].Reset();
+
+							player2.playerLives -= 1;
+
+							if (player2.playerLives <= 0 && player1.playerLives==0)
+							{
+								players2 = false;
+								gameState = LOSE;
+								break;
+
+							}
+						}
+					}
+				}
+
+				
+
 				//start drawing
 				//clear SDL renderer
 				SDL_RenderClear(renderer);
@@ -963,6 +1184,13 @@ int main(int argc, char* argv[]) {
 				SDL_RenderCopy(renderer, bkgd2, NULL, &bkgd2pos);
 
 				//SDL_RenderCopy(renderer, player2n, NULL, &player2npos);
+
+				for (int i = 0; i < enemyList.size(); i++)
+				{
+
+					enemyList[i].Draw(renderer);
+				}
+
 
 
 				player1.Draw(renderer);
@@ -1139,64 +1367,64 @@ int main(int argc, char* argv[]) {
 								}
 							}
 						}
-							break;
+						break;
 					case SDL_CONTROLLERAXISMOTION:
 						moveCursor(event.caxis);
 						break;
-						}
 					}
-					//update section
-					UpdateBackground();
+				}
+				//update section
+				UpdateBackground();
 
-					UpdateCursor(deltaTime);
+				UpdateCursor(deltaTime);
 
-					menuOver = SDL_HasIntersection(&activepos, &menupos);
+				menuOver = SDL_HasIntersection(&activepos, &menupos);
 
-					playOver = SDL_HasIntersection(&activepos, &playpos);
+				playOver = SDL_HasIntersection(&activepos, &playpos);
 
 
-					if (menuOver || playOver)
-					{
-						if (alreadyOver == false) {
-							Mix_PlayChannel(-1, overSound, 0);
-							alreadyOver = true;
-						}
-
+				if (menuOver || playOver)
+				{
+					if (alreadyOver == false) {
+						Mix_PlayChannel(-1, overSound, 0);
+						alreadyOver = true;
 					}
 
-					if (!menuOver && !playOver) {
-						alreadyOver = false;
-					}
+				}
 
-					//start drawing
-					//clear SDL renderer
-					SDL_RenderClear(renderer);
+				if (!menuOver && !playOver) {
+					alreadyOver = false;
+				}
 
-					//draw the background
-					SDL_RenderCopy(renderer, bkgd1, NULL, &bkgd1pos);
+				//start drawing
+				//clear SDL renderer
+				SDL_RenderClear(renderer);
 
-					SDL_RenderCopy(renderer, bkgd2, NULL, &bkgd2pos);
+				//draw the background
+				SDL_RenderCopy(renderer, bkgd1, NULL, &bkgd1pos);
 
-					SDL_RenderCopy(renderer, losetext, NULL, &losepos);
+				SDL_RenderCopy(renderer, bkgd2, NULL, &bkgd2pos);
 
-					if (menuOver) {
-						SDL_RenderCopy(renderer, menuover, NULL, &menupos);
-					}
-					else {
-						SDL_RenderCopy(renderer, menunorm, NULL, &menupos);
-					}
+				SDL_RenderCopy(renderer, losetext, NULL, &losepos);
 
-					if (playOver) {
-						SDL_RenderCopy(renderer, playover, NULL, &playpos);
-					}
-					else {
-						SDL_RenderCopy(renderer, playnorm, NULL, &playpos);
-					}
+				if (menuOver) {
+					SDL_RenderCopy(renderer, menuover, NULL, &menupos);
+				}
+				else {
+					SDL_RenderCopy(renderer, menunorm, NULL, &menupos);
+				}
 
-					SDL_RenderCopy(renderer, cursor, NULL, &cursorpos);
+				if (playOver) {
+					SDL_RenderCopy(renderer, playover, NULL, &playpos);
+				}
+				else {
+					SDL_RenderCopy(renderer, playnorm, NULL, &playpos);
+				}
 
-					//SDL Render present
-					SDL_RenderPresent(renderer);
+				SDL_RenderCopy(renderer, cursor, NULL, &cursorpos);
+
+				//SDL Render present
+				SDL_RenderPresent(renderer);
 
 
 			}
@@ -1204,16 +1432,16 @@ int main(int argc, char* argv[]) {
 
 		default:
 			break;
-			}
-
 		}
 
-		//SDL_Delay(3000);  // Pause execution for 3000 milliseconds, for example
-
-		// Close and destroy the window
-		SDL_DestroyWindow(window);
-
-		// Clean up
-		SDL_Quit();
-		return 0;
 	}
+
+	//SDL_Delay(3000);  // Pause execution for 3000 milliseconds, for example
+
+	// Close and destroy the window
+	SDL_DestroyWindow(window);
+
+	// Clean up
+	SDL_Quit();
+	return 0;
+}
