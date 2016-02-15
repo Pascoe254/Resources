@@ -40,8 +40,21 @@
 #include <vector>
 #include <stdlib.h>
 #include <time.h>
+#include "explode.h"
 
 vector<Enemy> enemyList;
+vector<Explode> explodeList;
+
+void MakeExplosion(int x, int y) {
+	for (int i = 0; i < explodeList.size(); i++) {
+		if (explodeList[i].active == false) {
+			explodeList[i].active = true;
+			explodeList[i].posRect.x = x;
+			explodeList[i].posRect.y = y;
+			break;
+		}
+	}
+}
 using namespace std;
 
 //create the SDL_rectangle for the texture's position and size - x,y,w,h
@@ -600,8 +613,7 @@ int main(int argc, char* argv[]) {
 	};
 
 	//setup initial state
-	GameState gameState = PLAYERS1;
-
+	GameState gameState = PLAYERS2;
 	//boolean values to control movement through states
 
 	bool menu = false, instructions = false, players1 = false, players2 = false, win = false, lose = false, quit = false;
@@ -629,6 +641,13 @@ int main(int argc, char* argv[]) {
 	Player player2 = Player(renderer, 1, s_cwd_images.c_str(), audio_dir.c_str(), 750.0, 500.0);
 
 
+	//create pool of explosions
+	for (int i = 0; i < 20; i++)
+	{
+		Explode tmpExplode(renderer, s_cwd_images, -1000, -1000);
+		explodeList.push_back(tmpExplode);
+
+	}
 
 
 	// The window is open: could enter program loop here (see SDL_PollEvent())
@@ -942,6 +961,8 @@ int main(int argc, char* argv[]) {
 								if (SDL_HasIntersection(&player1.bulletList[i].posRect, &enemyList[j].posRect)) {
 									Mix_PlayChannel(-1, explosionSound, 0);
 
+									MakeExplosion(enemyList[j].posRect.x, enemyList[j].posRect.y);
+
 									enemyList[j].Reset();
 
 									player1.bulletList[i].Reset();
@@ -962,6 +983,8 @@ int main(int argc, char* argv[]) {
 
 							Mix_PlayChannel(-1, explosionSound, 0);
 
+							MakeExplosion(enemyList[i].posRect.x , enemyList[i].posRect.y -32);
+
 							enemyList[i].Reset();
 
 							player1.playerLives -= 1;
@@ -977,6 +1000,12 @@ int main(int argc, char* argv[]) {
 					}
 				}
 
+				for (int i = 0; i < explodeList.size(); i++)
+				{
+					if (explodeList[i].active == true) {
+						explodeList[i].update(deltaTime);
+					}
+				}
 
 				//start drawing
 				//clear SDL renderer
@@ -994,6 +1023,13 @@ int main(int argc, char* argv[]) {
 				}
 
 				player1.Draw(renderer);
+
+				for (int i = 0; i < explodeList.size(); i++)
+				{
+					if (explodeList[i].active == true) {
+						explodeList[i].Draw(renderer);
+					}
+				}
 
 				//SDL Render present
 				SDL_RenderPresent(renderer);
@@ -1090,6 +1126,8 @@ int main(int argc, char* argv[]) {
 								if (SDL_HasIntersection(&player1.bulletList[i].posRect, &enemyList[j].posRect)) {
 									Mix_PlayChannel(-1, explosionSound, 0);
 
+									MakeExplosion(enemyList[j].posRect.x, enemyList[j].posRect.y);
+
 									enemyList[j].Reset();
 
 									player1.bulletList[i].Reset();
@@ -1109,6 +1147,8 @@ int main(int argc, char* argv[]) {
 							&enemyList[i].posRect)) {
 
 							Mix_PlayChannel(-1, explosionSound, 0);
+
+							MakeExplosion(enemyList[i].posRect.x, enemyList[i].posRect.y - 32);
 
 							enemyList[i].Reset();
 
@@ -1138,6 +1178,8 @@ int main(int argc, char* argv[]) {
 								if (SDL_HasIntersection(&player2.bulletList[i].posRect, &enemyList[j].posRect)) {
 									Mix_PlayChannel(-1, explosionSound, 0);
 
+									MakeExplosion(enemyList[j].posRect.x, enemyList[j].posRect.y);
+
 									enemyList[j].Reset();
 
 									player2.bulletList[i].Reset();
@@ -1158,11 +1200,13 @@ int main(int argc, char* argv[]) {
 
 							Mix_PlayChannel(-1, explosionSound, 0);
 
+							MakeExplosion(enemyList[i].posRect.x, enemyList[i].posRect.y - 32);
+
 							enemyList[i].Reset();
 
 							player2.playerLives -= 1;
 
-							if (player2.playerLives <= 0 && player1.playerLives==0)
+							if (player2.playerLives <= 0 && player1.playerLives == 0)
 							{
 								players2 = false;
 								gameState = LOSE;
@@ -1173,7 +1217,15 @@ int main(int argc, char* argv[]) {
 					}
 				}
 
-				
+				for (int i = 0; i < explodeList.size(); i++)
+				{
+					if (explodeList[i].active == true) {
+						explodeList[i].update(deltaTime);
+					}
+				}
+
+
+
 
 				//start drawing
 				//clear SDL renderer
@@ -1190,6 +1242,13 @@ int main(int argc, char* argv[]) {
 				{
 
 					enemyList[i].Draw(renderer);
+				}
+
+				for (int i = 0; i < explodeList.size(); i++)
+				{
+					if (explodeList[i].active == true) {
+						explodeList[i].Draw(renderer);
+					}
 				}
 
 
